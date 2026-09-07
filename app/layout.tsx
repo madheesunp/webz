@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Webz",
-  description: "We're more connected than you think.",
+  description: "We're more connected than you",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
