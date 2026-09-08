@@ -17,10 +17,17 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
+import { WebNode } from './nodes/WebNode';
+import { NodePanel } from './NodePanel';
+
+// Registered once at module scope so the reference stays STABLE across renders.
+// An inline object here would make React Flow re-mount every node each render.
+const nodeTypes = { webNode: WebNode };
+
 const initialNodes: Node[] = [
-  { id: '1', position: { x: 0, y: 0 }, data: { label: 'Daft Punk' } },
-  { id: '2', position: { x: 240, y: 120 }, data: { label: 'Justice' } },
-  { id: '3', position: { x: -200, y: 140 }, data: { label: 'Kraftwerk' } },
+  { id: '1', type: 'webNode', position: { x: 0, y: 0 }, data: { label: 'Daft Punk' } },
+  { id: '2', type: 'webNode', position: { x: 240, y: 120 }, data: { label: 'Justice' } },
+  { id: '3', type: 'webNode', position: { x: -200, y: 140 }, data: { label: 'Kraftwerk' } },
 ];
 
 const initialEdges: Edge[] = [
@@ -37,6 +44,14 @@ function Flow() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const { screenToFlowPosition } = useReactFlow();
+
+  const selectedNode = nodes.find((n) => n.selected) ?? null;
+
+  const updateSelectedLabel = (label: string) => {
+    setNodes((nds) =>
+      nds.map((n) => (n.selected ? { ...n, data: { ...n.data, label } } : n)),
+    );
+  };
 
   // Screen position of the "click to make new node!" hint, or null when hidden.
   const [hint, setHint] = useState<{ x: number; y: number } | null>(null);
@@ -70,6 +85,7 @@ function Flow() {
       });
       const newNode: Node = {
         id: crypto.randomUUID(),
+        type: 'webNode',
         position,
         data: { label: 'New node' },
       };
@@ -90,10 +106,11 @@ function Flow() {
   }, []);
 
   return (
-    <>
+    <div className="relative h-full w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -109,6 +126,10 @@ function Flow() {
         <MiniMap />
       </ReactFlow>
 
+      {selectedNode && (
+        <NodePanel selectedNode={selectedNode} onLabelChange={updateSelectedLabel} />
+      )}
+
       {hint && (
         <div
           data-node-hint
@@ -122,7 +143,7 @@ function Flow() {
           click to make new node!
         </div>
       )}
-    </>
+    </div>
   );
 }
 
