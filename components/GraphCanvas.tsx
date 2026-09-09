@@ -17,7 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { WebNode } from './nodes/WebNode';
+import { WebNode, type WebNodeData } from './nodes/WebNode';
 import { NodePanel } from './NodePanel';
 
 // Registered once at module scope so the reference stays STABLE across renders.
@@ -47,9 +47,9 @@ function Flow() {
 
   const selectedNode = nodes.find((n) => n.selected) ?? null;
 
-  const updateSelectedLabel = (label: string) => {
+  const updateSelectedData = (patch: Partial<WebNodeData>) => {
     setNodes((nds) =>
-      nds.map((n) => (n.selected ? { ...n, data: { ...n.data, label } } : n)),
+      nds.map((n) => (n.selected ? { ...n, data: { ...n.data, ...patch } } : n)),
     );
   };
 
@@ -127,7 +127,7 @@ function Flow() {
       </ReactFlow>
 
       {selectedNode && (
-        <NodePanel selectedNode={selectedNode} onLabelChange={updateSelectedLabel} />
+        <NodePanel selectedNode={selectedNode} onChange={updateSelectedData} />
       )}
 
       {hint && (
